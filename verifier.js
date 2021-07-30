@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const fetch = require('node-fetch');
+const existingIssues = [];
 
 module.exports = class Verifier {
 
@@ -12,15 +13,16 @@ module.exports = class Verifier {
   async verifyCommitMessages(commitMessages = [], checkExistence = exists) {
     if (!commitMessages.length) {
       core.info('no commits found to verify');
-      return { valid: [], invalid: [] };
+      return { valid: [], invalid: [], notExisting: [] };
     }
     core.info(`found ${commitMessages.length} commits`);
+    commitMessages.forEach((msg) => core.info(msg));
     const issues = new Map(commitMessages.map(value => [value, findIssueKeys(value)]));
-    const result = { valid: [], invalid: [] };
+    const result = { valid: [], invalid: [], notExisting: [] };
     for (const entry of [...issues.entries()]) {
       if (entry[1] === null) result.invalid.push(entry[0]);
       else if (await checkExistence(entry[1], this.type, this.host, this.token)) result.valid.push(entry[0]);
-      else result.invalid.push(entry[0]);
+      else result.notExisting.push(entry[0]);
     }
     return result;
   }
@@ -40,12 +42,14 @@ function findIssueKeys(message) {
 function exists(issueKey, type, host, token) {
   switch (type) {
     case 'jira': {
+      if (existingIssues.includes(issueKey)) return Promise.resolve(true);
       return fetch(`https://${host}/browse/${issueKey}`, {
         method: 'HEAD',
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(response => {
           if (response.status / 100 !== 2) core.setFailed(`issue ${issueKey} not found`);
+          existingIssues.push(issueKey);
           return true;
         })
         .catch((error) => {

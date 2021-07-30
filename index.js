@@ -18,9 +18,10 @@ process.on('unhandledRejection', up => {
 (async () => {
   if (github.context.eventName === 'push') {
     const results = await verifier.verifyCommitMessages(commitMessages);
-    if (results.invalid.length) {
+    if (results.invalid.length || results.notExisting.length) {
       results.invalid.forEach(message => core.error(`found commit message without issue: \n${message}`));
-      core.setFailed(`found ${results.invalid.length} commits without issue`);
+      results.notExisting.forEach(message => core.error(`found not existing issue in commit: \n${message}`));
+      core.setFailed(`found ${results.invalid.length + results.notExisting.length} commits with errors`);
       process.exit(1);
     }
   } else {

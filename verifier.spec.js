@@ -1,7 +1,8 @@
 const Verifier = require('./verifier');
 
 const existingIssues = {
-  'OPBOX-1': true
+  'OPBOX-1': true,
+  'MBOX-1234': true
 };
 
 describe('verifier', () => {
@@ -14,7 +15,7 @@ describe('verifier', () => {
     const results = await verifier.verifyCommitMessages(['OPBOX-1 | testing', 'OPBOX-1 | done'], async (issue) => existingIssues[issue]);
 
     // expect
-    expect(results).toEqual({ invalid: [], valid: ['OPBOX-1 | testing', 'OPBOX-1 | done'] });
+    expect(results).toEqual({ invalid: [], valid: ['OPBOX-1 | testing', 'OPBOX-1 | done'], notExisting: [] });
   });
 
   test('returns all commits having issue string as valid and ones that does not exist in tracker as invalid', async () => {
@@ -25,7 +26,7 @@ describe('verifier', () => {
     const results = await verifier.verifyCommitMessages(['OPBOX-1 | testing', 'OPBOX-2 | more'], async (issue) => existingIssues[issue]);
 
     // expect
-    expect(results).toEqual({ invalid: ['OPBOX-2 | more'], valid: ['OPBOX-1 | testing'] });
+    expect(results).toEqual({ invalid: [], valid: ['OPBOX-1 | testing'], notExisting: ['OPBOX-2 | more'] });
   });
 
   test('returns all commits that have issue string as valid and ones that does not have it as invalid', async () => {
@@ -36,7 +37,11 @@ describe('verifier', () => {
     const results = await verifier.verifyCommitMessages(['this is not valid', 'OPBOX-1 | this is a valid message'], async (issue) => existingIssues[issue]);
 
     // expect
-    expect(results).toEqual({ invalid: ['this is not valid'], valid: ['OPBOX-1 | this is a valid message'] });
+    expect(results).toEqual({
+      invalid: ['this is not valid'],
+      valid: ['OPBOX-1 | this is a valid message'],
+      notExisting: []
+    });
   });
 
   test('returns true if pull request title includes issue string and it exists in tracker', async () => {
@@ -80,6 +85,6 @@ describe('verifier', () => {
     const results = await verifier.verifyCommitMessages([]);
 
     // expect
-    expect(results).toEqual({ invalid: [], valid: [] });
+    expect(results).toEqual({ invalid: [], valid: [], notExisting: [] });
   });
 });
