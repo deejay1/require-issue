@@ -18,6 +18,21 @@ describe('verifier', () => {
     expect(results).toEqual({ invalid: [], valid: ['OPBOX-1 | testing', 'OPBOX-1 | done'], notExisting: [] });
   });
 
+  test('returns all commits having issue string that exists in tracker as valid - multiple issues in one commit', async () => {
+    //given
+    const verifier = new Verifier();
+
+    //when
+    const results = await verifier.verifyCommitMessages(['OPBOX-1 | testing OPBOX-2 task', 'OPBOX-1 | done'], async (issue) => existingIssues[issue]);
+
+    // expect
+    expect(results).toEqual({
+      invalid: [],
+      valid: ['OPBOX-1 | testing OPBOX-2 task', 'OPBOX-1 | done'],
+      notExisting: ['OPBOX-1 | testing OPBOX-2 task']
+    });
+  });
+
   test('returns all commits having issue string as valid and ones that does not exist in tracker as invalid', async () => {
     //given
     const verifier = new Verifier();

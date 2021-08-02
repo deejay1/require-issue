@@ -20,9 +20,17 @@ module.exports = class Verifier {
     const issues = new Map(commitMessages.map(value => [value, findIssueKeys(value)]));
     const result = { valid: [], invalid: [], notExisting: [] };
     for (const entry of [...issues.entries()]) {
-      if (entry[1] === null) result.invalid.push(entry[0]);
-      else if (await checkExistence(entry[1], this.type, this.host, this.token)) result.valid.push(entry[0]);
-      else result.notExisting.push(entry[0]);
+      const commitMessage = entry[0];
+      const foundIssues = entry[1];
+      if (foundIssues.size === 0) result.invalid.push(commitMessage);
+      for (const issue of foundIssues) {
+        const exists = await checkExistence(issue, this.type, this.host, this.token);
+        if (exists) {
+          result.valid.push(commitMessage);
+        } else {
+          result.notExisting.push(commitMessage);
+        }
+      }
     }
     return result;
   }
@@ -36,7 +44,7 @@ module.exports = class Verifier {
 };
 
 function findIssueKeys(message) {
-  return message.match(/[A-Z]+-\d+/gm);
+  return new Set(message.match(/[A-Z]+-\d+/gm));
 }
 
 function exists(issueKey, type, host, token) {
