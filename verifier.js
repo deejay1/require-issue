@@ -44,7 +44,7 @@ module.exports = class Verifier {
 };
 
 function findIssueKeys(message) {
-  return new Set(message.match(/[A-Z]+-\d+/gm));
+  return new Set(message.match(/[A-Z0-9]+-\d+/gm));
 }
 
 function exists(issueKey, type, host, token) {
