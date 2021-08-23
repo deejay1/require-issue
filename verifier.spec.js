@@ -14,7 +14,7 @@ describe('verifier', () => {
     const commitMessages = [
       'OPBOX-1 | testing', 'OPBOX-1 | done',
       'L4-1309 | testing', 'L4-1309 | done'
-    ]
+    ];
 
     //when
     const results = await verifier.verifyCommitMessages(commitMessages, async (issue) => existingIssues[issue]);
@@ -70,17 +70,17 @@ describe('verifier', () => {
     const prTitles = [
       'OPBOX-1 | testing',
       'L4-1309 | testing'
-    ]
+    ];
 
     //when
     var results = await Promise.all(prTitles.map((title) => {
-      return verifier.verifyTitle(title, async (issue) => existingIssues[issue])
+      return verifier.verifyTitle(title, async (issue) => existingIssues[issue]);
     }));
 
     // expect
     results.forEach((result) => {
       expect(result).toEqual(true);
-    })
+    });
   });
 
   test('returns false if pull request title includes issue string but it does not exists in tracker', async () => {
