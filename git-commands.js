@@ -8,7 +8,7 @@ module.exports = {
   getCommitMessages: () => {
     try {
       const defaultBranchName = String(exec('git remote show origin | grep "HEAD branch" | cut -d" " -f5')).trim();
-      return String(exec(`git rev-list --format=%B${COMMIT_SEPARATOR} HEAD ^origin/${defaultBranchName}`))
+      return String(exec(`git rev-list --no-merges --format=%B${COMMIT_SEPARATOR} HEAD ^origin/${defaultBranchName}`))
         .trim()
         .replace(/\n/g, ' ')
         .split(new RegExp(COMMIT_SEPARATOR))
