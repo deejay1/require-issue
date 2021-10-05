@@ -7,9 +7,10 @@ const { getPullRequestTitle } = require('./gh-commands');
 const host = core.getInput('host');
 const token = core.getInput('token');
 const type = core.getInput('type');
+const includeMergeCommits = core.getBooleanInput('includeMerges');
 
 const verifier = new Verifier(type, host, token);
-const commitMessages = getCommitMessages();
+const commitMessages = getCommitMessages(includeMergeCommits);
 
 process.on('unhandledRejection', up => {
   core.setFailed(`Action failed ${up}`);

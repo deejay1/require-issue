@@ -24,3 +24,4 @@ steps:
 `host` - issue tracker URL
 `token` - access token to issue tracker
 `type` - type of issue tracker - default - `jira`
+`includeMerges` - if check should look at merge commits for valid issue names - default - `true`
