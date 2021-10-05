@@ -12,6 +12,10 @@ inputs:
     description: 'Issue tracker type'
     required: true
     default: jira
+  includeMerges:
+    description: 'Include merge commits when checking for issues'
+    required: false
+    default: 'true'
 
 runs:
   using: 'node12'
